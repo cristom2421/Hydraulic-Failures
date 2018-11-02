@@ -3,25 +3,25 @@
 # Supports HEC-SSP v2? Bulletin 17B analysis, PeakFQ v4.2 B17B, and PeakFQ v7.2 B17C
 LoadFFA <- function(filename, folder.out, TYPE = "PeakFQ_17C",
                     colStandard = TRUE){ # standardize column output names
-  
+
   ls.colNames <- list("PEAKFQSA" = c("Ann. Exc. Prob.", "EMA Est.", "V[log(EMA)]","At-Site Est.","CI-Low","CI-High"),
                       "PKFQ72_17C" = c("ANN_EXC_PROB",  "EMA_REG",	"EMA_STAT",	"LOG_VAR_REG",	"5PCT_CONF_REG",	"95PCT_CONF_REG"),
-                      "HEC_17B"    = c("Ordinate",  "FREQ",	"FLOW Computed Curve",	"FLOW Expected Prob Curve",	"FLOW 5Pct Conf",	"FLOW 95Pct Conf",	
+                      "HEC_17B"    = c("Ordinate",  "FREQ",	"FLOW Computed Curve",	"FLOW Expected Prob Curve",	"FLOW 5Pct Conf",	"FLOW 95Pct Conf",
                                        "FLOW Observed (Median)",	"FLOW Historic Data",	"FLOW High Outlier",	"FLOW Low Outlier"),
                       "PKFQ42_17B" = c("ANN_EXC_PROB",  "BULL17B_EST",	"SYSTEM_RECORD",	"EXPECTED_PROB",	"5PCT_CONF",	"95PCT_CONF"),
                       "PARTDUR"    = c("Val","Exc"))
   colNames <- ls.colNames[TYPE]
-  
+
   colsSwitch <- list(FlowCols   = c("EMA_REG", "FLOW Computed Curve", "BULL17B_EST","Val","EMA Est.","V[log(EMA)]","At-Site Est."),
                      FreqCols   = c("Ann. Exc. Prob.","ANN_EXC_PROB","FREQ","Exc","Ann. Exc. Prob."),
                      Flow05Cols = c("5PCT_CONF_REG", "5PCT_CONF","CI-Low"),
                      Flow95Cols = c("95PCT_CONF_REG", "95PCT_CONF","CI-High"))
-  
+
   colsOut <- c(FlowCols   = "Flow",
                FreqCols   = "Freq",
                Flow05Cols = c("Flow05"),
                Flow95Cols = c("Flow95"))
-  
+
 fileinput<-file.path(folder.out,filename)
 fileinput<-c(fileinput)
 
@@ -31,13 +31,21 @@ if(grepl("PEAKFQSA",TYPE)){ # PeakfqSA Bulleting 17C analysis
   skip.rows<-sapply(text.list, grep, pattern = '^Ann. Exc. Prob.\\s+EMA Est.')-1
   PFA <- lapply(seq_along(text.list),function(i) read.delim(fileinput[i],skip=skip.rows[i],sep="\n",stringsAsFactors = TRUE,blank.lines.skip = FALSE))
 }
-PFA<-as.data.frame(PFA)
-print(PFA)
+#PFA<-as.data.frame(PFA)
+for ( val in PFA ){
+  if ( val != ""){
+    print(val)
+  }
+  else{
+    break
+  }
+}
+#print(PFA)
 class(PFA)
 #strsplit(PFA," ")[[1]][1]
-#print(PFA) 
+#print(PFA)
 }
-# 
+#
 # if(grepl("PeakFQ72_17C",TYPE)){ # 7.2 version, non-batch
 #   PFA <- read.fwf(file.path(folder.out,filename),
 #                   77,
@@ -56,7 +64,7 @@ class(PFA)
 #                               function(j) gsub("--","NA",PFA[j,])), stringsAsFactors = FALSE)
 #   PFA <- as.data.frame(t(sapply(1:nrow(PFA), function(j) as.numeric(unlist(strsplit(PFA[j,], "[[:space:]]+")))[2:7] )))
 # }
-# 
+#
 # if(grepl("PeakFQ42_17B",TYPE)){ # older batch version
 #   skip <- 83
 #   PFA <- read.fwf(file.path(folder.out,filename),
@@ -68,7 +76,7 @@ class(PFA)
 #                   stringsAsFactors = FALSE)
 #   PFA <- as.data.frame(t(sapply(1:nrow(PFA), function(j) as.numeric(unlist(strsplit(PFA[j,], "[[:space:]]+")))[2:7] )))
 # }
-# 
+#
 # if(grepl("HEC_17B_P",TYPE)){ # HEC-SSP ANALYSIS USING PEAK DATA (TAB OUTPUT)
 #   skip <- 5
 #   PFA <- read.table(file.path(folder.out,filename),
@@ -76,7 +84,7 @@ class(PFA)
 #                     skip=skip, col.names = colNames,
 #                     stringsAsFactors = FALSE)
 # }
-# 
+#
 # if(grepl("HEC_17B_D",TYPE)){ # HEC-SSP ANALYSIS USING DAILY MEAN DATA
 #   skip <- 3
 #   colClasses <- c()
@@ -117,7 +125,7 @@ class(PFA)
 #   PFA <- PFA[,2:3]
 #   attr(PFA,nPart = nPart)
 # }
-# 
+#
 # # Now setup column names
 # colnames(PFA) <- colNames
 # colClasses    <- names(ColsSwitch)
