@@ -33,7 +33,7 @@ if(grepl("PEAKFQSA",TYPE)){ # PeakfqSA Bulleting 17C analysis
 }
 #PFA<-as.data.frame(PFA)
 for ( val in PFA ){
-  if ( val != ""){
+  if ( val != ''){
     print(val)
   }
   else{
