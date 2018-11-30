@@ -14,6 +14,7 @@ SitesChar <- c("13015000", "03196800", "03155000", "03117500", "01611500", "0161
 data <- df.Fail.NBI.Gage[]
 head(data$YR_FAIL_EST)
 
+#PeakFlow 00060
 rows <- c(1,2,3,4,5,6)
 BeginDate <- sapply(rows, function(i) max(as.Date(as.numeric(df.Fail.NBI.Gage[i,"DATE_P_BEGIN_ALT_USGS"]),"1970-01-01"),df.Fail.NBI.Gage[i,"YR_BLT_EST"],na.rm = TRUE))
 
@@ -34,12 +35,16 @@ EndDate   <- paste(EndDate,"12","31",sep="-")
 ls.Discharge <- vector("list",length=length(SitesChar))
 
 for (i in 1:length(SitesChar)){
-  dat <- readNWISdata(SitesChar[i],code="00060",stat="00003",sdate=BeginDate[i],edate=EndDate[i])
-
-  ls.Discharge[[i]]$staid <- dat$staid
-  ls.Discharge[[i]]$val   <- dat$val
-  ls.Discharge[[i]]$dates <- dat$dates
+  datpeak <- readNWISdata(siteNumbers = SitesChar[i], parameterCd = "00060",
+                      startDate = BeginDate[i], endDate = EndDate[i],
+                      service = "uv")
+  
+  ls.Discharge[[i]]$staid <- datpeak$staid
+  ls.Discharge[[i]]$val   <- datpeak$val
+  ls.Discharge[[i]]$dates <- datpeak$dates
 }
+
+#2 Instantaneous flow on day of failure, 00061
 
 HasFailDate <- !is.na(df.Fail.NBI.Gage[rows,"YR_FAIL"])
 NoFailDate  <- !HasFailDate
@@ -52,6 +57,12 @@ BeginFailYearIndex <- sapply(NoFailIndex, function(i) which.min(abs(Dates[[Sites
 EndFailYearIndex <- sapply(NoFailIndex, function(i) which.min(abs(Dates[[SitesChar[i]]]-as.Date(paste(substr(df.Fail.NBI.Gage[rows[i],"YR_FAIL"],1,4),"12","31",sep="-")))))
 FailDate[NoFailDate] <- sapply(1:length(BeginFailYearIndex), function(i) ls.Discharge[[NoFailIndex[i]]][which.max(ls.Discharge[[NoFailIndex[i]]]$val[BeginFailYearIndex[i]:EndFailYearIndex[i]])+BeginFailYearIndex[i],"dates"])
 FailDate <- as.Date(as.numeric(FailDate),"1970-01-01")
+
+for (i in 1:length(SitesChar)){
+  dat <- readNWISdata(siteNumbers = SitesChar[i], parameterCd = "00060",
+                          startDate = FailDate[i], endDate = FailDate[i],
+                          service = "dv")
+}
 
 #head(data$DATE_P_BEGIN_ALT_USGS)
 #head(data$YR_BLT_EST)
